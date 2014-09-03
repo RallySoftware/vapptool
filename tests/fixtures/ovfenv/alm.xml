@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Environment
+     xmlns="http://schemas.dmtf.org/ovf/environment/1"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:oe="http://schemas.dmtf.org/ovf/environment/1"
+     xmlns:ve="http://www.vmware.com/schema/ovfenv"
+     oe:id="onprem-bkd-km-01"
+     ve:vCenterId="vm-8937">
+   <PlatformSection>
+      <Kind>VMware ESXi</Kind>
+      <Version>5.5.0</Version>
+      <Vendor>VMware, Inc.</Vendor>
+      <Locale>en</Locale>
+   </PlatformSection>
+   <PropertySection>
+         <Property oe:key="default_gateway" oe:value="10.32.30.1"/>
+         <Property oe:key="dns1" oe:value="10.32.0.9"/>
+         <Property oe:key="dns2" oe:value="10.32.0.13"/>
+         <Property oe:key="dns_search_domain" oe:value="f4tech.com"/>
+         <Property oe:key="ip_address_alm" oe:value="10.32.30.29"/>
+         <Property oe:key="netmask" oe:value="255.255.254.0"/>
+         <Property oe:key="vm_name" oe:value="alm"/>
+   </PropertySection>
+   <ve:EthernetAdapterSection>
+      <ve:Adapter ve:mac="00:50:56:b4:05:8e" ve:network="Engineering Infrastructure2" ve:unitNumber="7"/>
+   </ve:EthernetAdapterSection>
+</Environment>

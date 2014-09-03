@@ -1,0 +1,112 @@
+#!/usr/bin/env python -B
+
+from optparse import OptionParser
+import libxml2, os, subprocess, sys
+
+GET_GUESTINFO = ['/usr/sbin/vmware-rpctool', '"info-get guestinfo.ovfEnv"']
+
+def load_ovf():
+    pobj = subprocess.Popen(' '.join(GET_GUESTINFO),
+                            bufsize=1,
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT)
+    buf = pobj.stdout.read()
+    ret = pobj.wait()
+    if ret or not buf or buf.startswith('No value found'):
+        raise(Exception, 'No value found: guestinfo.ovfEnv')
+    return buf
+
+def ovf_dom():
+    dom = libxml2.parseDoc(load_ovf())
+    return dom
+
+def ovf_context():
+    nsdict = {
+      'default': "http://schemas.dmtf.org/ovf/environment/1",
+      'xsi':"http://www.w3.org/2001/XMLSchema-instance",
+      'oe':"http://schemas.dmtf.org/ovf/environment/1",
+      've':"http://www.vmware.com/schema/ovfenv" }
+
+    doc = ovf_dom()
+
+    context = doc.xpathNewContext()
+
+    for k, v in nsdict.iteritems():
+        context.xpathRegisterNs(k, v)
+
+    return context
+
+def ovf_property(context, key):
+    '''
+    Given an xpath context and a key for a property, return the value for that key
+    where value is a list of value(s)
+
+    @returns: A list of values
+    @raises: xpathError - If xpath cannot be evaluated
+    '''
+    value = context.xpathEval("/default:Environment/default:PropertySection/default:Property[@oe:key='%s']/@oe:value" %(key))
+    return value
+
+
+def cmd_inspect():
+    '''
+    We decided to leave the try, except block commented out to let the Exceptions be raised to prevevent our
+    our tests from failing and spamming stdout with a line like:
+
+    must be string or None, not bool
+    DEBUG: Raised Exception in cmd_inspect
+    '''
+#    try:
+    context = ovf_context()
+    vm_name = ovf_property(context, 'vm_name')
+
+    # vm_name is a list, the value is stored via method call for get_content
+    if vm_name:
+        result = vm_name[0]
+
+        if result and result.get_content():
+            return True
+
+        #TODO: Do we need to do further checking if we get here, or do we just return False?
+
+ #   except Exception, e:
+ #       print(str(e))
+ #       print("DEBUG: Raised Exception in cmd_inspect")
+
+    return False
+
+
+def parse_commandline_args(cmdline=sys.argv[1:]):
+    cmdline_parser = OptionParser()
+
+    # define our command line options, help message
+    cmdline_parser.add_option('-i', '--inspect', dest='inspect', action="store_true", default=False, help='Exits 0 when executed from on a VM within Rally vApp, otherwise non-zero')
+
+    if not sys.argv[1:]:
+        cmdline_parser.print_help()
+
+    # parse the command line options
+    (options, args) = cmdline_parser.parse_args(cmdline)
+
+    # do something special with parsed options
+    # ....
+    # ....
+
+    if options.inspect:
+        print("command inspect")
+        # invoke inspect function to determine if we are in a vApp.
+        print("DEBUG: the return value is: %s" %cmd_inspect())
+
+    return False
+
+def main():
+    result = parse_commandline_args()
+
+    if result:
+        sys.exit(0)
+
+    sys.exit(1)
+
+if __name__ == "__main__":
+    main()

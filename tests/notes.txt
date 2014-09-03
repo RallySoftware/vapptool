@@ -1,0 +1,42 @@
+vapptool --test
+  - should return 0:
+    - when vmtoolsd is found (or --ovfenv is not specified)
+      -and-
+    - when ovfenv has a Property for vm_name
+
+  - should return non-0 otherwise
+
+
+
+
+vapptool --test
+
+vapptool --hosts
+vapptool --resolv
+vapptool --iface
+vapptool --sysconfig_network
+
+--ovfenv = file path
+--in = file path
+
+
+
+
+## setup test env prerequisites (system config management)
+
+CentOS prerequisites (EPEL, pip)
+yum install http://mirror.pnl.gov/epel/6/i386/epel-release-6-8.noarch.rpm
+yum install -y python-pip python-virtualenv
+
+OSX
+pip install virtualenv
+
+
+## setup test env (job-scoped)
+
+(deactivate || true) && \
+rm -Rf virtualenv/ && \
+mkdir -p virtualenv && \
+virtualenv --no-site-packages --python=python2.6 virtualenv && \
+source virtualenv/bin/activate && \
+pip install -r requirements.txt
