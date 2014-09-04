@@ -124,7 +124,11 @@ def main():
     cmdline=sys.argv[1:]
     cmdline_parser = OptionParser()
 
-    # define our command line options, help message
+    # TODO: commands yet to complete
+    #     --sysconfig-network
+    #     --iface
+    #     --resolv
+
     cmdline_parser.add_option('-i', '--inspect',   dest='inspect',   action="store_true", default=False, help='Exits 0 when executed from on a VM within Rally vApp, otherwise non-zero')
     cmdline_parser.add_option('-P', '--print',     dest='printovf',  action="store_true", default=False, help='Prints the value of guestinfo.ovfEnv')
     cmdline_parser.add_option('-l', '--localhost', dest='localhost', action="store_true", default=False, help='Prints the value of the ip_address property for this VM')
@@ -133,10 +137,6 @@ def main():
 
     # parse the command line options
     (options, args) = cmdline_parser.parse_args(cmdline)
-
-    # check that one of the following was specified, and raise if not:
-    #     --sysconfig-network
-    #     --iface
 
     try:
         if options.inspect:
