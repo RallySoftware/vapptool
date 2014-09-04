@@ -58,6 +58,16 @@ def ovf_property(key):
 
     return nodes[0].get_content()
 
+def ovf_ip_address():
+    vm_name = ovf_property('vm_name')
+
+    if vm_name:
+        ip_address = ovf_property("ip_address_%s" %(vm_name))
+        if ip_address:
+            return ip_address
+
+    raise Exception('guestinfo.ovfEnv is present, but does not contain a vApp ip_address property for this VM')
+
 
 def cmd_inspect():
     if ovf_property('vm_name'):
@@ -70,22 +80,20 @@ def cmd_printovf():
     return [ 0, load_ovf(), None]
 
 
-def ip_address_vapp_localhost():
-    vm_name = ovf_property('vm_name')
-
-    if vm_name:
-        ip_address = ovf_property("ip_address_%s" %(vm_name))
-        if ip_address:
-            return ip_address
-
-    raise Exception('guestinfo.ovfEnv is present, but does not contain a vApp ip_address property for this VM')
-
 def cmd_localhost():
-    ip_address = ip_address_vapp_localhost()
+    ip_address = ovf_ip_address()
     if ip_address:
         return [ 0, ip_address, None]
 
     return [ 1, None, 'guestinfo.ovfEnv is present, but does not contain a vApp ip_address_ property for this VM' ]
+
+
+def cmd_property(key):
+    value = ovf_property(key)
+    if value:
+        return [ 0, value, None]
+
+    return [ 1, None, "guestinfo.ovfEnv is present, but does not contain a vApp %s property for this VM" %(key) ]
 
 
 def cmd_hosts():
@@ -97,7 +105,7 @@ def cmd_hosts():
             etc_hosts += line + '\n'
 
     dns_search_domain = ovf_property('dns_search_domain')
-    ip_address = ip_address_vapp_localhost()
+    ip_address = ovf_ip_address()
 
     etc_hosts += "\n%s vapp_localhost vapp_localhost.%s #%s" %(ip_address, dns_search_domain, autogen)
 
@@ -111,13 +119,6 @@ def cmd_hosts():
     return [ 0, etc_hosts, None]
 
 
-def cmd_property(key):
-    value = ovf_property(key)
-    if value:
-        return [ 0, value, None]
-
-    return [ 1, None, "guestinfo.ovfEnv is present, but does not contain a vApp %s property for this VM" %(key) ]
-
 
 def main():
     cmdline=sys.argv[1:]
@@ -130,18 +131,10 @@ def main():
     cmdline_parser.add_option('-p', '--property',  dest='property',  action="store",                     help='Prints the value of the property for this VM')
     cmdline_parser.add_option('-H', '--hosts',     dest='hosts',     action="store_true", default=False, help='Prints output suitable for /etc/hosts that contains entries for all VMs in this vApp')
 
-    if not sys.argv[1:]:
-        cmdline_parser.print_help()
-
     # parse the command line options
     (options, args) = cmdline_parser.parse_args(cmdline)
 
     # check that one of the following was specified, and raise if not:
-    #     --inspect
-    #     --print
-    #     --property
-    #     --localhost
-    #     --hosts
     #     --sysconfig-network
     #     --iface
 
@@ -162,6 +155,9 @@ def main():
         elif options.hosts:
             cmd_result = cmd_hosts()
 
+        else:
+            cmdline_parser.print_help()
+            sys.exit(1)
 
 
         if cmd_result[1]:
