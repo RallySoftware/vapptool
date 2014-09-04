@@ -14,70 +14,59 @@ def load_ovf():
     buf = pobj.stdout.read()
     ret = pobj.wait()
     if ret or not buf or buf.startswith('No value found'):
-        raise(Exception, 'No value found: guestinfo.ovfEnv')
+        raise Exception('No value found: guestinfo.ovfEnv')
     return buf
 
-def ovf_dom():
-    dom = libxml2.parseDoc(load_ovf())
-    return dom
+def ovf_xpath(path):
+    '''
+    Given an xpath string, return the node set evaluated by the xpath.
 
-def ovf_context():
+    @returns: A node set.
+    @raises: xpathError - If xpath cannot be evaluated
+    '''
     nsdict = {
       'default': "http://schemas.dmtf.org/ovf/environment/1",
       'xsi':"http://www.w3.org/2001/XMLSchema-instance",
       'oe':"http://schemas.dmtf.org/ovf/environment/1",
       've':"http://www.vmware.com/schema/ovfenv" }
 
-    doc = ovf_dom()
+    xml = load_ovf()
+    doc = libxml2.parseDoc(xml)
 
     context = doc.xpathNewContext()
 
     for k, v in nsdict.iteritems():
         context.xpathRegisterNs(k, v)
 
-    return context
+    return context.xpathEval(path)
 
-def ovf_property(context, key):
+def ovf_property(key):
     '''
-    Given an xpath context and a key for a property, return the value for that key
-    where value is a list of value(s)
+    Given a key for a vApp property, return the value for that key.
 
-    @returns: A list of values
-    @raises: xpathError - If xpath cannot be evaluated
+    @returns: A string value, or None.
+    @raises: Exeption - If multiple properties are found for the given key.
     '''
-    value = context.xpathEval("/default:Environment/default:PropertySection/default:Property[@oe:key='%s']/@oe:value" %(key))
-    return value
+    nodes = ovf_xpath("/default:Environment/default:PropertySection/default:Property[@oe:key='%s']/@oe:value" %(key))
+    if not nodes:
+        return None
+    elif len(nodes) > 1:
+        raise Exception('Multiple nodes found, expected only one.')
+
+    return nodes[0].get_content()
 
 
 def cmd_inspect():
-    '''
-    We decided to leave the try, except block commented out to let the Exceptions be raised to prevevent our
-    our tests from failing and spamming stdout with a line like:
+    vm_name = ovf_property('vm_name')
 
-    must be string or None, not bool
-    DEBUG: Raised Exception in cmd_inspect
-    '''
-#    try:
-    context = ovf_context()
-    vm_name = ovf_property(context, 'vm_name')
-
-    # vm_name is a list, the value is stored via method call for get_content
     if vm_name:
-        result = vm_name[0]
+        return [ 0, None, None ]
 
-        if result and result.get_content():
-            return True
-
-        #TODO: Do we need to do further checking if we get here, or do we just return False?
-
- #   except Exception, e:
- #       print(str(e))
- #       print("DEBUG: Raised Exception in cmd_inspect")
-
-    return False
+    return [ 1, None, 'guestinfo.ovfEnv is present, but does not contain expected vApp properties' ]
 
 
-def parse_commandline_args(cmdline=sys.argv[1:]):
+def main():
+    cmdline=sys.argv[1:]
     cmdline_parser = OptionParser()
 
     # define our command line options, help message
@@ -89,22 +78,30 @@ def parse_commandline_args(cmdline=sys.argv[1:]):
     # parse the command line options
     (options, args) = cmdline_parser.parse_args(cmdline)
 
-    # do something special with parsed options
-    # ....
-    # ....
+    # check that one of the following was specifiedf, and raise if not:
+    #     --inspect
+    #     --hosts
+    #     --sysconfig-network
 
-    if options.inspect:
-        print("command inspect")
-        # invoke inspect function to determine if we are in a vApp.
-        print("DEBUG: the return value is: %s" %cmd_inspect())
+    try:
+        if options.inspect:
+            # invoke inspect function to determine if we are in a vApp.
+            cmd_result = cmd_inspect()
 
-    return False
 
-def main():
-    result = parse_commandline_args()
 
-    if result:
-        sys.exit(0)
+
+        if cmd_result[1]:
+            print(str(cmd_result[1]))
+
+        if cmd_result[2]:
+            print >> sys.stderr, str(cmd_result[2])
+
+        sys.exit(cmd_result[0])
+
+    except Exception, e:
+        print >> sys.stderr, str(e)
+        sys.exit(1)
 
     sys.exit(1)
 
