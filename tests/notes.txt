@@ -1,27 +1,3 @@
-vapptool --test
-  - should return 0:
-    - when vmtoolsd is found (or --ovfenv is not specified)
-      -and-
-    - when ovfenv has a Property for vm_name
-
-  - should return non-0 otherwise
-
-
-
-
-vapptool --test
-
-vapptool --hosts
-vapptool --resolv
-vapptool --iface
-vapptool --sysconfig_network
-
---ovfenv = file path
---in = file path
-
-
-
-
 ## setup test env prerequisites (system config management)
 
 CentOS prerequisites (EPEL, pip)
