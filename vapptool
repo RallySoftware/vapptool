@@ -57,12 +57,33 @@ def ovf_property(key):
 
 
 def cmd_inspect():
-    vm_name = ovf_property('vm_name')
-
-    if vm_name:
+    if ovf_property('vm_name'):
         return [ 0, None, None ]
 
     return [ 1, None, 'guestinfo.ovfEnv is present, but does not contain expected vApp properties' ]
+
+
+def cmd_printovf():
+    return [ 0, load_ovf(), None]
+
+
+def cmd_localhost():
+    vm_name = ovf_property('vm_name')
+
+    if vm_name:
+        ip_address = ovf_property("ip_address_%s" %(vm_name))
+        if ip_address:
+            return [ 0, ip_address, None]
+
+    return [ 1, None, 'guestinfo.ovfEnv is present, but does not contain a vApp ip_address_ property for this VM' ]
+
+
+def cmd_property(key):
+    value = ovf_property(key)
+    if value:
+        return [ 0, value, None]
+
+    return [ 1, None, "guestinfo.ovfEnv is present, but does not contain a vApp %s property for this VM" %(key) ]
 
 
 def main():
@@ -70,7 +91,10 @@ def main():
     cmdline_parser = OptionParser()
 
     # define our command line options, help message
-    cmdline_parser.add_option('-i', '--inspect', dest='inspect', action="store_true", default=False, help='Exits 0 when executed from on a VM within Rally vApp, otherwise non-zero')
+    cmdline_parser.add_option('-i', '--inspect',   dest='inspect',   action="store_true", default=False, help='Exits 0 when executed from on a VM within Rally vApp, otherwise non-zero')
+    cmdline_parser.add_option('-P', '--print',     dest='printovf',  action="store_true", default=False, help='Prints the value of guestinfo.ovfEnv')
+    cmdline_parser.add_option('-l', '--localhost', dest='localhost', action="store_true", default=False, help='Prints the value of the ip_address property for this VM')
+    cmdline_parser.add_option('-p', '--property',  dest='property',  action="store",                     help='Prints the value of the property for this VM')
 
     if not sys.argv[1:]:
         cmdline_parser.print_help()
@@ -78,15 +102,28 @@ def main():
     # parse the command line options
     (options, args) = cmdline_parser.parse_args(cmdline)
 
-    # check that one of the following was specifiedf, and raise if not:
+    # check that one of the following was specified, and raise if not:
     #     --inspect
+    #     --print
+    #     --property
+    #     --localhost
     #     --hosts
     #     --sysconfig-network
+    #     --iface
 
     try:
         if options.inspect:
             # invoke inspect function to determine if we are in a vApp.
             cmd_result = cmd_inspect()
+
+        elif options.printovf:
+            cmd_result = cmd_printovf()
+
+        elif options.localhost:
+            cmd_result = cmd_localhost()
+
+        elif options.property:
+            cmd_result = cmd_property(options.property)
 
 
 
