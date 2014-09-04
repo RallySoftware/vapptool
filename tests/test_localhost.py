@@ -13,14 +13,11 @@ def test_cmd_localhost_with_no_ovfenv(mock_load_ovf):
   vapptool.cmd_localhost()
 
 @patch('vapptool.load_ovf')
+@raises(Exception)
 def test_cmd_localhost_with_unknown_ovfenv(mock_load_ovf):
   mock_load_ovf.return_value = file('tests/fixtures/ovfenv/legacy-onprem.xml', 'r').read()
 
   actual = vapptool.cmd_localhost()
-
-  assert actual[0] is not 0,    'cmd_localhost should return a non-zero status when an ovfEnv is found that does not contain Rally vApp properties'
-  assert actual[1] is None,     'cmd_localhost should not return stdout when an ovfEnv is found that does not contain Rally vApp properties'
-  assert actual[2] is not None, 'cmd_localhost should return stderr when an ovfEnv is found that does not contain Rally vApp properties'
 
 @patch('vapptool.load_ovf')
 def test_cmd_localhost_with_a_known_ovfenv(mock_load_ovf):
