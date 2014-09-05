@@ -102,19 +102,20 @@ def cmd_hosts():
     etc_hosts = ""
     for line in load_hosts().split('\n'):
         if autogen not in line:
-            etc_hosts += line + '\n'
+            if line != "":
+                etc_hosts += line + '\n'
 
     dns_search_domain = ovf_property('dns_search_domain')
     ip_address = ovf_ip_address()
 
-    etc_hosts += "\n%s vapp_localhost vapp_localhost.%s #%s" %(ip_address, dns_search_domain, autogen)
+    etc_hosts += "%s vapp_localhost vapp_localhost.%s #%s\n" %(ip_address, dns_search_domain, autogen)
 
     vapp_hosts = ovf_xpath('//default:PropertySection/default:Property[@oe:key="vm_name"]/@oe:value')
 
     for vapp_host in vapp_hosts:
         vapp_host_name = vapp_host.get_content()
         vapp_host_ip = ovf_property("ip_address_" + vapp_host_name)
-        etc_hosts += "\n%s vapp_%s vapp_%s.%s #%s" %(vapp_host_ip, vapp_host_name, vapp_host_name, dns_search_domain, autogen)
+        etc_hosts += "%s vapp_%s vapp_%s.%s #%s\n" %(vapp_host_ip, vapp_host_name, vapp_host_name, dns_search_domain, autogen)
 
     return [ 0, etc_hosts, None]
 

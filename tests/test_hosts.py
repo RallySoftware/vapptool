@@ -56,3 +56,4 @@ def test_cmd_hosts_with_modified_hosts_and_a_known_ovfenv(mock_load_hosts, mock_
   assert len(re.findall('10.32.30.29\s+vapp_localhost\s+vapp_localhost.f4tech.com', stdout)) is 1, 'cmd_hosts stdout should contain only one vapp_localhost entry'
   assert len(re.findall('10.32.30.29\s+vapp_alm\s+vapp_alm.f4tech.com', stdout))             is 1, 'cmd_hosts stdout should contain only one vapp_alm entry'
   assert len(re.findall('10.32.30.30\s+vapp_core\s+vapp_core.f4tech.com', stdout))           is 1, 'cmd_hosts stdout should contain only one vapp_core entry'
+  assert stdout.count('\n\n') is 0, 'cmd_hosts stdout should not contain empty lines'
