@@ -1,11 +1,4 @@
-from nose_parameterized import parameterized
-from nose.tools import with_setup, raises
-from mock import *
-import imp
-import libxml2
-import re
-
-vapptool = imp.load_source('vapptool', './vapptool')
+from helper import *
 
 @patch('vapptool.load_ovf')
 @raises(Exception)
@@ -57,3 +50,21 @@ def test_cmd_hosts_with_modified_hosts_and_a_known_ovfenv(mock_load_hosts, mock_
   assert len(re.findall('10.32.30.29\s+vapp_alm\s+vapp_alm.f4tech.com', stdout))             is 1, 'cmd_hosts stdout should contain only one vapp_alm entry'
   assert len(re.findall('10.32.30.30\s+vapp_core\s+vapp_core.f4tech.com', stdout))           is 1, 'cmd_hosts stdout should contain only one vapp_core entry'
   assert stdout.count('\n\n') is 0, 'cmd_hosts stdout should not contain empty lines'
+
+
+@patch('vapptool.cmd_hosts')
+def test_main_hosts(mock_cmd_hosts):
+  mock_cmd_hosts.return_value = [ 0, 'stdout', 'stderr' ]
+
+  actual = call_main_with('--hosts')
+
+  assert actual[0] is 0,        '--hosts should exit non-zero when no ovfEnv is found'
+  assert 'stdout' in actual[1], '--hosts should not print stdout when no ovfEnv is found'
+  assert 'stderr' in actual[2], '--hosts should return stderr when no ovfEnv is found'
+
+def test_main_hosts_with_wrong_options():
+  actual = call_main_with('--hosts', '--wrongopt')
+
+  assert actual[0] is not 0,      '--hosts should exit non-zero when called incorrectly'
+  assert actual[1] is None,       '--hosts should not print stdout when called incorrectly'
+  assert 'wrongopt' in actual[2], '--hosts should stderr when called incorrectly'
