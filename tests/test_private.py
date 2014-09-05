@@ -1,10 +1,4 @@
-from nose_parameterized import parameterized
-from nose.tools import with_setup, raises
-from mock import *
-import imp
-import libxml2
-
-vapptool = imp.load_source('vapptool', './vapptool')
+from helper import *
 
 @patch('vapptool.ovf_xpath')
 def test_ovf_property_with_a_single_found_value(mock_ovf_xpath):

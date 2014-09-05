@@ -1,12 +1,4 @@
-from nose_parameterized import parameterized
-from nose.tools import with_setup, raises
-from mock import *
-import imp
-import libxml2
-import re
-
-
-vapptool = imp.load_source('vapptool', './vapptool')
+from helper import *
 
 @patch('vapptool.load_ovf')
 @raises(Exception)
