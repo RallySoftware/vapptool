@@ -28,21 +28,3 @@ def call_main_with(*argv):
   finally:
     sys.stdout = saved_stdout
     sys.stdout = saved_stderr
-
-
-# @nottest
-# def capture_stdout(callback, out=sys.stdout, *callback_args):
-#     from StringIO import StringIO
-#     saved_stdout = out
-#     try:
-#         out = StringIO()
-#         sys.stdout = out
-#         if callback_args:
-#             callback(callback_args)
-#         else:
-#             callback()
-#         output = out.getvalue().strip()
-#         return output
-#     finally:
-#         print('exception occured in capture_stdout')
-#         sys.stdout = saved_stdout

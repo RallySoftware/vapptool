@@ -21,7 +21,7 @@ def test_cmd_hosts_with_default_hosts_and_a_known_ovfenv(mock_load_hosts, mock_l
   actual = vapptool.cmd_hosts()
 
   assert actual[0] is 0,    'cmd_hosts should return a zero status when an ovfEnv is found that contains Rally vApp properties'
-  assert actual[2] is None, 'cmd_hosts should return stderr when an ovfEnv is found that does not contain Rally vApp properties'
+  assert actual[2] is None, 'cmd_hosts should not return stderr when an ovfEnv is found that does not contain Rally vApp properties'
 
   stdout = actual[1]
   assert re.search('127.0.0.1\s+localhost', stdout)                                    is not None, 'cmd_hosts stdout should contain the contents of the original /etc/hosts file'
@@ -42,7 +42,7 @@ def test_cmd_hosts_with_modified_hosts_and_a_known_ovfenv(mock_load_hosts, mock_
   actual = vapptool.cmd_hosts()
 
   assert actual[0] is 0,    'cmd_hosts should return a zero status when an ovfEnv is found that contains Rally vApp properties'
-  assert actual[2] is None, 'cmd_hosts should return stderr when an ovfEnv is found that does not contain Rally vApp properties'
+  assert actual[2] is None, 'cmd_hosts should not return stderr when an ovfEnv is found that does not contain Rally vApp properties'
 
   stdout = actual[1]
   assert re.search('127.0.0.1\s+localhost', stdout)                                          is not None, 'cmd_hosts stdout should contain the contents of the original /etc/hosts file'
