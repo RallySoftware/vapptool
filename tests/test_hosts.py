@@ -58,13 +58,13 @@ def test_main_hosts(mock_cmd_hosts):
 
   actual = call_main_with('--hosts')
 
-  assert actual[0] is 0,        '--hosts should exit non-zero when no ovfEnv is found'
-  assert 'stdout' in actual[1], '--hosts should not print stdout when no ovfEnv is found'
-  assert 'stderr' in actual[2], '--hosts should return stderr when no ovfEnv is found'
+  assert actual[0] is 0,        '--hosts should exit zero'
+  assert 'stdout' in actual[1], '--hosts should print stdout'
+  assert 'stderr' in actual[2], '--hosts should not print stderr'
 
 def test_main_hosts_with_wrong_options():
   actual = call_main_with('--hosts', '--wrongopt')
 
   assert actual[0] is not 0,      '--hosts should exit non-zero when called incorrectly'
   assert actual[1] is None,       '--hosts should not print stdout when called incorrectly'
-  assert 'wrongopt' in actual[2], '--hosts should stderr when called incorrectly'
+  assert 'wrongopt' in actual[2], '--hosts should print stderr when called incorrectly'

@@ -37,3 +37,19 @@ def test_cmd_resolv_with_a_known_ovfenv(mock_load_ovf):
   assert re.search('nameserver 10.32.0.9', stdout)             is not None, 'cmd_resolv stdout should contain a nameserver directive for dns1'
   assert re.search('nameserver 10.32.0.13', stdout)            is not None, 'cmd_resolv stdout should contain a nameserver directive for dns2'
 
+@patch('vapptool.cmd_resolv')
+def test_main_resolv(mock_cmd_resolv):
+  mock_cmd_resolv.return_value = [ 0, 'stdout', 'stderr' ]
+
+  actual = call_main_with('--resolv')
+
+  assert actual[0] is 0,        '--resolv should exit zero'
+  assert 'stdout' in actual[1], '--resolv should print stdout'
+  assert 'stderr' in actual[2], '--resolv should not print stderr'
+
+def test_main_resolv_with_wrong_options():
+  actual = call_main_with('--resolv', '--wrongopt')
+
+  assert actual[0] is not 0,      '--resolv should exit non-zero when called incorrectly'
+  assert actual[1] is None,       '--resolv should not print stdout when called incorrectly'
+  assert 'wrongopt' in actual[2], '--resolv should print stderr when called incorrectly'

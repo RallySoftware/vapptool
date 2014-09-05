@@ -26,3 +26,27 @@ def test_cmd_property_with_any_ovfenv_missing_property(mock_load_ovf):
   assert actual[0] is not 0,    'cmd_property should return non-zero status when an ovfEnv is found that does not contain the property asked for'
   assert actual[1] is None,     'cmd_property should not stdout when an ovfEnv is found that does not contain the property asked for.'
   assert actual[2] is not None, 'cmd_property should return stderr when an ovfEnv is found that does not contain the property asked for'
+
+@patch('vapptool.cmd_property')
+def test_main_property(mock_cmd_property):
+  mock_cmd_property.return_value = [ 0, 'stdout', 'stderr' ]
+
+  actual = call_main_with('--property=foo')
+
+  assert actual[0] is 0,        '--property should exit zero'
+  assert 'stdout' in actual[1], '--property should print stdout'
+  assert 'stderr' in actual[2], '--property should not print stderr'
+
+def test_main_property_without_property_name():
+  actual = call_main_with('--property')
+
+  assert actual[0] is not 0,    '--property should exit non-zero when called without a property name'
+  assert actual[1] is None,     '--property should not print stdout when called without a property name'
+  assert actual[2] is not None, '--property should print stderr when called without a property name'
+
+def test_main_property_with_wrong_options():
+  actual = call_main_with('--property=bar', '--wrongopt')
+
+  assert actual[0] is not 0,      '--property should exit non-zero when called incorrectly'
+  assert actual[1] is None,       '--property should not print stdout when called incorrectly'
+  assert 'wrongopt' in actual[2], '--property should print stderr when called incorrectly'
