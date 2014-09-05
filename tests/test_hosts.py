@@ -14,6 +14,18 @@ def test_cmd_hosts_with_no_etc_hosts(mock_load_hosts):
 
 @patch('vapptool.load_ovf')
 @patch('vapptool.load_hosts')
+def test_cmd_hosts_with_an_unknown_ovfenv(mock_load_hosts, mock_load_ovf):
+  mock_load_hosts.return_value = file('tests/fixtures/centos6/hosts.orig', 'r').read()
+  mock_load_ovf.return_value   = file('tests/fixtures/ovfenv/legacy-onprem.xml', 'r').read()
+
+  actual = vapptool.cmd_hosts()
+
+  assert actual[0] is not 0,    'cmd_hosts should return a non-zero status when an ovfEnv is found that does not contain Rally vApp properties'
+  assert actual[1] is None,     'cmd_hosts should not return stdout when an ovfEnv is found that does not contain Rally vApp properties'
+  assert actual[2] is not None, 'cmd_hosts should return stderr when an ovfEnv is found that does not contain Rally vApp properties'
+
+@patch('vapptool.load_ovf')
+@patch('vapptool.load_hosts')
 def test_cmd_hosts_with_default_hosts_and_a_known_ovfenv(mock_load_hosts, mock_load_ovf):
   mock_load_hosts.return_value = file('tests/fixtures/centos6/hosts.orig', 'r').read()
   mock_load_ovf.return_value   = file('tests/fixtures/ovfenv/alm-core.xml', 'r').read()
