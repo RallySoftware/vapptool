@@ -7,13 +7,13 @@ configuration.
 ##Supported properties
 
 ###Virtual Machine properties
-| Property | Type  | Example | Description | Required |
-| -------- |:----: |:-----------:| --------:|
+|Property|Type|Example|Description|Required|
+|--------|:--:|:------|:----------|:------:|
 | `vm_name` | String | `alm` | Used as a component of the VM's `HOSTNAME`.  Should only contain domain-name compatible characters.| Required |
 
 ###vApp properties
-| Property | Type  | Example | Description | Required |
-| -------- |:----: |:-----------:| --------:|
+|Property|Type|Example|Description|Required|
+|--------|:--:|:------|:----------|:------:|
 | `ip_address_#{vm_name}` | IP | `10.0.0.5` | The vApp must have one of these properties defined for each VM in the vApp, using the `vm_name` assigned to the VM.| Required |
 | `netmask` | IP | `255.255.255.0` | IP netmask. | Required |
 | `dns_search_domain` | String | `f4tech.com` | Used as the resolver's dns search domain and as a component each of the VMs' `HOSTNAME`s. Must be a validly formatted domain name. | Required |
