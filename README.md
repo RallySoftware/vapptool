@@ -59,14 +59,9 @@ These instructions assume OSX 1.9.4.
 % echo '/usr/local/opt/libxml2/lib/python2.7/site-packages' > ~/Library/Python/2.7/lib/python/site-packages/homebrew.pth
 ```
 
-###pip
-```shell
-% sudo easy_install pip
-```
-
 ###python packages
 ```shell
-sudo pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 ###Running the tests
