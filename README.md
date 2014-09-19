@@ -68,3 +68,8 @@ pip install -r requirements.txt
 ```shell
 nosetests -s
 ```
+
+## License
+Copyright (c) Rally Software Development Corp. 2014
+
+Distributed under the MIT License.
