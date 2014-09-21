@@ -24,7 +24,7 @@ def load_sysconfig_network():
     return file('/etc/sysconfig/network', 'r').read()
 
 def load_iface(iface):
-    return file("/etc/sysconfig/network-scripts/ifcfc-%s" %(iface), 'r').read()
+    return file("/etc/sysconfig/network-scripts/ifcfg-%s" %(iface), 'r').read()
 
 def ovf_xpath(path):
     '''
