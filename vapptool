@@ -3,7 +3,7 @@
 from optparse import OptionParser
 import libxml2, os, subprocess, sys
 
-GET_GUESTINFO = ['/usr/sbin/vmware-rpctool', '"info-get guestinfo.ovfEnv"']
+GET_GUESTINFO = ['/usr/sbin/vmtoolsd', '--cmd "info-get guestinfo.ovfEnv"']
 
 def load_ovf():
     pobj = subprocess.Popen(' '.join(GET_GUESTINFO),
