@@ -1,0 +1,70 @@
+#! /bin/bash
+#
+# vapp_network       Setup networking from VMware vApp Properties
+#
+# chkconfig: 2345 07 90
+# description: Sets up eth0 for static networking from values found in vApp properties
+#
+### BEGIN INIT INFO
+# Provides: $vapp_network
+# Short-Description: Setup networking from VMware vApp Properties
+# Description: Setup networking from VMware vApp Properties
+### END INIT INFO
+
+# Source function library.
+. /etc/init.d/functions
+
+if [ ! -f /etc/sysconfig/network ]; then
+    exit 6
+fi
+
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ "${NETWORKING}" = "no" ] && exit 6
+
+# if vapptool isn't around we can't function and we exit gracefully.
+[ -x /usr/sbin/vapptool ] || exit 0
+
+CWD=$(pwd)
+cd /etc/sysconfig/network-scripts
+
+. ./network-functions
+
+# See how we were called.
+case "$1" in
+  start)
+    # if vapptool doesn't find vApp properties, just exit gracefully since we may not be running inside a vApp.
+    /usr/sbin/vapptool --inspect || exit 0
+
+    ifcfg_eth0=$(vapptool --iface eth0)
+    hosts=$(vapptool --hosts)
+    resolv_conf=$(vapptool --resolv)
+    sysconfig_network=$(vapptool --sysconfig-network)
+
+    echo "${ifcfg_eth0}" > /etc/sysconfig/network-scripts/ifcfg-eth0
+    echo "${hosts}" > /etc/hosts
+    echo "${resolv_conf}" > /etc/resolv.conf
+    echo "${sysconfig_network}" > /etc/sysconfig/network
+    ;;
+
+  stop)
+    rc=/usr/sbin/vapptool --inspect
+    ;;
+
+  status)
+    rc=0
+    ;;
+
+  restart|reload|force-reload)
+    cd "$CWD"
+    $0 stop
+    $0 start
+    rc=$?
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|status|restart|reload|force-reload}"
+    exit 2
+esac
+
+exit $rc
